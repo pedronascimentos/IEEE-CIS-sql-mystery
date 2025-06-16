@@ -1,54 +1,33 @@
 <!DOCTYPE HTML>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+    <title>O Mistério de Assassinato em SQL: Passo a Passo Detalhado</title>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="https://cloud.typenetwork.com/projects/5433/fontface.css" />
-    <link rel="stylesheet" href="https://cdn.knightlab.com/libs/orangeline/0.1.1/css/orangeline.min.css" />
-    <!-- /CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-bg': '#2a2f30',
+                        'card-bg': '#3c4245',
+                        'brand-blue': '#04abe3',
+                        'brand-blue-darker': '#038ac1',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
 
-    <!-- FAVICONS -->
-    <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.knightlab.com/libs/orangeline/0.1.1/assets/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="https://cdn.knightlab.com/libs/orangeline/0.1.1/assets/favicons/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="https://cdn.knightlab.com/libs/orangeline/0.1.1/assets/favicons/favicon-16x16.png" sizes="16x16">
-    <link rel="manifest" href="https://cdn.knightlab.com/libs/orangeline/0.1.1/assets/favicons/manifest.json">
-    <link rel="mask-icon" href="https://cdn.knightlab.com/libs/orangeline/0.1.1/assets/favicons/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="theme-color" content="#ffffff">
-    <!-- /FAVICONS -->
-
-    <title>The SQL Murder Mystery: Detailed Walkthrough</title>
-    <!-- Meta -->
-    <meta name="keywords" content="SQL, databases, game, fun">
-    <meta name="description" content="Use SQL queries to solve the murder mystery. Suitable for beginners or experienced SQL sleuths.">
-    <!-- /Meta -->
-
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="SQL Murder Mystery" />
-    <meta property="og:description" content="Use SQL queries to solve the murder mystery. Suitable for beginners or experienced SQL sleuths." />
-    <meta property="og:image" content="http://mystery.knightlab.com/174092-clue-illustration.png" />
-    <meta property="og:url" content="http://mystery.knightlab.com/walkthrough.html" />
-    <meta property="og:site_name" content="Knight Lab's SQL Murder Mystery" />
-    <meta property="fb:app_id" content="2361935160801585" />
-
-    <!-- /Open Graph -->
-
-    <!-- Twitter Card -->
-    <meta name="twitter:title" content="Knight Lab's SQL Murder Mystery">
-    <meta name="twitter:description" content="Use SQL queries to solve the murder mystery. Suitable for beginners or experienced SQL sleuths.">
-    <meta name="twitter:image" content="http://mystery.knightlab.com/174092-clue-illustration.png">
-    <meta name="twitter:site" content="@knightlab">
-    <!-- /Twitter Card -->
-
-    <link rel="stylesheet" href='https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css'>
-    <link rel="stylesheet" href="css/main.css" />
-    <link rel="stylesheet" href="css/neat.css" />
-
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css" />
     <script src="https://unpkg.com/@webcomponents/custom-elements@1.2.0/custom-elements.min.js"></script>
     <script src="scripts/codemirror.js"></script>
     <script src="scripts/codemirrorsql.js"></script>
@@ -58,483 +37,320 @@
         window.onload = () => loadData('sql-murder-mystery.db');
     </script>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-8F4WPDMPL5"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #2a2f30;
+            color: #ffffff;
+        }
 
-  gtag('config', 'G-8F4WPDMPL5');
-</script>
-    <title>The SQL Murder Mystery</title>
+        /* Estilizando o editor CodeMirror para o tema escuro */
+        .CodeMirror {
+            border: 1px solid #04abe3 !important;
+            border-radius: 0.75rem;
+            background-color: #1e293b !important;
+            color: white !important;
+            font-family: monospace;
+            height: auto;
+            font-size: 1rem;
+        }
+        .CodeMirror-gutters { background-color: #1e293b !important; border-right: 1px solid #334155 !important; }
+        .CodeMirror-guttermarker { color: white; }
+        .CodeMirror-linenumber { color: #9ca3af; }
+        .CodeMirror-cursor { border-left: 1px solid white !important; }
+        .cm-s-default .cm-keyword { color: #f97316; }
+        .cm-s-default .cm-atom { color: #60a5fa; }
+        .cm-s-default .cm-number { color: #a78bfa; }
+        .cm-s-default .cm-string { color: #22c55e; }
+        .cm-s-default .cm-operator { color: #04abe3; }
+        .cm-s-default .cm-variable { color: #eab308; }
+
+        /* Estilos para os botões Run e Reset */
+        .sqlExInputArea input[type="submit"],
+        .sqlExInputArea input[type="button"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 1rem;
+        }
+
+        /* Estilo específico para o botão Run */
+        .sqlExInputArea input[type="submit"] {
+            background-color: #04abe3;
+            color: white;
+            box-shadow: 0 4px 6px rgba(4, 171, 227, 0.2);
+        }
+
+        .sqlExInputArea input[type="submit"]:hover {
+            background-color: #038ac1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(4, 171, 227, 0.3);
+        }
+
+        .sqlExInputArea input[type="submit"]:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(4, 171, 227, 0.2);
+        }
+
+        /* Estilo específico para o botão Reset */
+        .sqlExInputArea input[type="button"] {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            box-shadow: 0 4px 6px rgba(45, 55, 72, 0.2);
+        }
+
+        .sqlExInputArea input[type="button"]:hover {
+            background-color: #1a202c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(45, 55, 72, 0.3);
+        }
+
+        .sqlExInputArea input[type="button"]:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(45, 55, 72, 0.2);
+        }
+
+        /* Container dos botões */
+        .sqlExInputArea {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* Ícones para os botões */
+        .sqlExInputArea input[type="submit"]::before {
+            content: "▶";
+            margin-right: 0.5rem;
+            font-size: 0.8em;
+        }
+
+        .sqlExInputArea input[type="button"]::before {
+            content: "↺";
+            margin-right: 0.5rem;
+            font-size: 0.8em;
+        }
+
+        /* Estilos para a tabela de resultados SQL */
+        .sql-output {
+            width: 100%;
+            margin-top: 1rem;
+            overflow-x: auto;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 1rem 0;
+        }
+
+        .results-table thead {
+            background-color: #04abe3;
+        }
+
+        .results-table th {
+            color: white;
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #038ac1;
+        }
+
+        .results-table td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #334155;
+            color: #e2e8f0;
+        }
+
+        .results-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .results-table tbody tr:hover {
+            background-color: #2d3748;
+            transition: background-color 0.2s ease;
+        }
+
+        .results-table tbody tr:hover td {
+            color: #ffffff;
+        }
+
+        /* Estilo para mensagens de erro e sucesso */
+        .returnError {
+            color: #ef4444;
+            padding: 1rem;
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border-left: 4px solid #ef4444;
+        }
+
+        .returnOkay {
+            color: #10b981;
+            padding: 1rem;
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border-left: 4px solid #10b981;
+        }
+    </style>
 </head>
 
-<body>
-    <nav id="navbar-product-top" class="navbar navbar-dark">
-        <ul>
-            <li class="logo">
-                <a href="http://knightlab.com">
-                    <img src="https://cdn.knightlab.com/libs/orangeline/0.1.1/assets/knightlab-dark.png" />
+<body class="bg-dark-bg text-white font-sans text-lg">
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="http://knightlab.com" class="flex items-center">
+                <img src="img/cis-logo.png" alt="Logo" class="h-10">
+            </a>
+            <h1 class="text-2xl font-bold text-gray-800 hidden md:block">
+                O Mistério de Assassinato em SQL
+            </h1>
+            <div class="flex items-center space-x-4">
+                <a href="https://github.com/NUKnightLab/sql-mysteries" target="_blank" class="text-gray-600 hover:text-brand-blue transition-colors">
+                    <i class="fab fa-github fa-2x"></i>
                 </a>
-            </li>
-        </ul>
-        <div class="nav-mobile-menu">
-            <button class="button-plain">
-        <span class="icon-menu"></span>
-      </button>
-        </div>
-        <ul class="nav-right navbar-nav">
-
-
-            <li><a class="button button-dark button-small-tablet  button-active" href="https://knightlab.northwestern.edu/projects/">Projects</a></li>
-
-            <li><a class="button button-dark button-small-tablet  " href="https://studio.knightlab.com/">Studio</a></li>
-
-            <li><a class="button button-dark button-small-tablet  " href="https://localnewsinitiative.northwestern.edu/">Local
-          News</a></li>
-
-            <li><a class="button button-dark button-small-tablet  " href="https://knightlab.northwestern.edu/posts/">Posts</a>
-            </li>
-
-            <li><a class="button button-dark button-small-tablet  " href="https://knightlab.northwestern.edu/community/">Community</a></li>
-
-        </ul>
-    </nav>
-
-    <header class="header-product">
-        <h1 class="product-logo product-logo-large">
-            SQL Murder Mystery
-        </h1>
-        <h2 class="product-tagline">Can you find out whodunnit?</h2>
+            </div>
+        </nav>
     </header>
 
-    <div class="container">
-
-        <div id="intro" class="grid">
-            <div class="grid-item">
-                <img src="174092-clue-illustration.png" class="img-rounded" alt="A decorative illustration of a detective looking at an evidence board.">
-                <p>
-                    There's been a Murder in SQL City! The SQL Murder Mystery is designed to be both a self-directed lesson to learn SQL concepts and commands and a fun game for experienced SQL users to solve an intriguing crime.
-                </p>
-
-            </div>
+    <main class="container mx-auto p-4 md:p-8">
+        <div class="text-center pt-8 pb-12">
+            <h1 class="text-5xl md:text-6xl font-bold">Passo a Passo do Mistério de Assassinato em SQL</h1>
+            <h2 class="text-2xl text-gray-300 mt-3">Você consegue descobrir quem foi o culpado?</h2>
         </div>
 
-        <div class="grid">
-            <div class="grid-item">
-                <h2>Walkthrough for SQL Beginners</h2>
-                <p>
-                    If you're comfortable with SQL, you can <a href="index.html#experienced">skip these explanations</a> and put your skills to the test! Below we introduce some basic SQL concepts, and just enough detail to solve the murder. If you'd
-                    like a more complete introduction to SQL, try <a href="https://selectstarsql.com/">Select
-            Star SQL.</a>
+        <div class="space-y-8">
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <div class="md:flex md:space-x-8 items-center">
+                    <img src="174092-clue-illustration.png" class="w-full md:w-1/3 rounded-lg mb-4 md:mb-0" alt="Ilustração decorativa de um detetive olhando para um quadro de evidências.">
+                    <p class="text-xl leading-relaxed">
+                        Houve um assassinato na Cidade SQL! O "Mistério de Assassinato em SQL" foi projetado para ser tanto uma lição autodirigida para aprender conceitos e comandos de SQL quanto um jogo divertido para usuários experientes de SQL resolverem um crime intrigante.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-brand-blue">Passo a Passo para Iniciantes em SQL</h2>
+                <p class="mb-3 leading-relaxed">
+                    Se você já está confortável com SQL, pode <a href="index.html#detetives" class="text-brand-blue font-semibold hover:underline">pular estas explicações</a> e testar suas habilidades! Abaixo, introduzimos alguns conceitos básicos de SQL e detalhes suficientes para resolver o assassinato. Se você quiser uma introdução mais completa ao SQL, experimente o <a href="https://selectstarsql.com/" target="_blank" rel="noopener noreferrer" class="text-brand-blue font-semibold hover:underline">Select Star SQL</a>.
                 </p>
             </div>
-        </div>
 
-        <div class="grid">
-            <div class="grid-item">
-                <p>
-                    A crime has taken place and the detective needs your help. The detective gave you the crime scene report, but you somehow lost it. You vaguely remember that the crime was a <strong>​murder​</strong> that occurred sometime on ​<strong>Jan.15, 2018​</strong>                    and that it took place in ​<strong>SQL City​</strong>. Start by retrieving the corresponding crime scene report from the police department’s database.
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <p class="mb-4 leading-relaxed">
+                    Um crime ocorreu e o detetive precisa da sua ajuda. O detetive lhe deu o relatório da cena do crime, mas você o perdeu. Você lembra vagamente que o crime foi um <strong>assassinato</strong> que ocorreu por volta de <strong>15 de janeiro de 2018</strong> e que aconteceu na <strong>Cidade SQL</strong>. Comece recuperando o relatório da cena do crime correspondente do banco de dados do departamento de polícia.
                 </p>
-                <p>
-                    All the clues to this mystery are buried in a huge database, and you need to use SQL to navigate through this vast network of information. Your first step to solving the mystery is to retrieve the corresponding crime scene report from the police department’s
-                    database. Below we'll explain from a high level the commands you need to know; whenever you are ready, you can start adapting the examples to create your own SQL commands in search of clues -- you can run any SQL in any of the code
-                    boxes, no matter what was in the box when you started.
+                <p class="leading-relaxed">
+                    Todas as pistas deste mistério estão enterradas em um enorme banco de dados, e você precisa usar SQL para navegar por esta vasta rede de informações. Seu primeiro passo para resolver o mistério é recuperar o relatório da cena do crime correspondente do banco de dados do departamento de polícia. Abaixo, explicaremos em alto nível os comandos que você precisa conhecer; quando estiver pronto, você pode começar a adaptar os exemplos para criar seus próprios comandos SQL em busca de pistas - você pode executar qualquer SQL em qualquer uma das caixas de código, independentemente do que estava na caixa quando você começou.
                 </p>
             </div>
-        </div>
 
-
-        <div class="grid">
-            <div class="grid-item">
-                <h2>Some Definitions</h2>
-                <h3>What is SQL?</h3>
-                <p>
-                    SQL, which stands for Structured Query Language, is a way to interact with relational databases and tables in a way that allows us humans to glean specific, meaningful information.
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-brand-blue">Algumas Definições</h2>
+                
+                <h3 class="text-2xl font-semibold mb-3">O que é SQL?</h3>
+                <p class="mb-4 leading-relaxed">
+                    SQL, que significa Structured Query Language (Linguagem de Consulta Estruturada), é uma forma de interagir com bancos de dados relacionais e tabelas de uma maneira que nos permite obter informações específicas e significativas.
                 </p>
 
-                <h3>Wait, what is a relational database?</h3>
-                <p>There's no single definition for the word <em>database</em>. In general, databases are systems for managing information. Databases can have varying amounts of structure imposed on the data. When the data is more structured, it can help
-                    people and computers work with the data more efficiently.
+                <h3 class="text-2xl font-semibold mb-3">Espere, o que é um banco de dados relacional?</h3>
+                <p class="mb-4 leading-relaxed">
+                    Não existe uma única definição para a palavra <em>banco de dados</em>. Em geral, bancos de dados são sistemas para gerenciar informações. Os bancos de dados podem ter diferentes quantidades de estrutura imposta aos dados. Quando os dados são mais estruturados, isso pode ajudar pessoas e computadores a trabalhar com os dados de forma mais eficiente.
                 </p>
-                <p>Relational databases are probably the best known kind of database. At their heart, relational databases are made up of <em>tables</em>, which are a lot like spreadsheets. Each column in the table has a name and a data type (text, number,
-                    etc.), and each row in the table is a specific instance of whatever the table is "about." The "relational" part comes with specific rules about how to connect data between different tables.
+                <p class="mb-4 leading-relaxed">
+                    Bancos de dados relacionais são provavelmente o tipo mais conhecido de banco de dados. Em sua essência, bancos de dados relacionais são compostos por <em>tabelas</em>, que são muito parecidas com planilhas. Cada coluna na tabela tem um nome e um tipo de dado (texto, número, etc.), e cada linha na tabela é uma instância específica do que a tabela é "sobre". A parte "relacional" vem com regras específicas sobre como conectar dados entre diferentes tabelas.
                 </p>
 
-                <h3>What is an ERD?</h3>
-                <p>
-                    ERD, which stands for Entity Relationship Diagram, is a visual representation of the relationships among all relevant tables within a database. You can find the ERD for our SQL Murder Mystery database below. The diagram shows that each table has a name
-                    (top of the box, in bold), a list of column names (on the left) and their corresponding data types (on the right, in all caps). There are also some gold key icons, blue arrow icons and gray arrows on the ERD. A gold key indicates that
-                    the column is the ​primary key​ of the corresponding table, and a blue arrow indicates that the column is the ​foreign key​ of the corresponding table.
-                    <dl>
-                        <dt>
-              Primary Key​:
-            </dt>
-                        <dd>
-                            a unique identifier for each row in a table.
-                        </dd>
-                        <dt>
-              Foreign Key​:
-            </dt>
-                        <dd>
-                            used to reference data in one table to those in another table.
-                        </dd>
-                    </dl>
-                    If two tables are related, the matching columns, i.e. the common identifiers of the two tables, are connected by a gray arrow in the diagram.
+                <h3 class="text-2xl font-semibold mb-3">O que é um ERD?</h3>
+                <p class="mb-4 leading-relaxed">
+                    ERD, que significa Entity Relationship Diagram (Diagrama de Relacionamento de Entidades), é uma representação visual dos relacionamentos entre todas as tabelas relevantes dentro de um banco de dados. Você pode encontrar o ERD para nosso banco de dados do Mistério de Assassinato em SQL abaixo. O diagrama mostra que cada tabela tem um nome (topo da caixa, em negrito), uma lista de nomes de colunas (à esquerda) e seus tipos de dados correspondentes (à direita, em maiúsculas). Também existem alguns ícones de chave dourada, ícones de seta azul e setas cinza no ERD. Uma chave dourada indica que a coluna é a <strong>chave primária</strong> da tabela correspondente, e uma seta azul indica que a coluna é a <strong>chave estrangeira</strong> da tabela correspondente.
                 </p>
-                <p>Here is the ERD for our database:
+                <dl class="mb-4">
+                    <dt class="font-semibold">Chave Primária:</dt>
+                    <dd class="ml-4 mb-2">um identificador único para cada linha em uma tabela.</dd>
+                    <dt class="font-semibold">Chave Estrangeira:</dt>
+                    <dd class="ml-4">usada para referenciar dados em uma tabela para aqueles em outra tabela.</dd>
+                </dl>
+                <p class="mb-4 leading-relaxed">
+                    Se duas tabelas estão relacionadas, as colunas correspondentes, ou seja, os identificadores comuns das duas tabelas, são conectados por uma seta cinza no diagrama.
                 </p>
-                <img src="schema.png" width='1002' height='491'>
+                <p class="mb-4">Aqui está o ERD para nosso banco de dados:</p>
+                <img src="schema.png" alt="Diagrama do banco de dados" class="w-full rounded-lg shadow-lg">
             </div>
-        </div>
 
-        <div class="grid">
-            <div class="grid-item">
-                <h2>
-                    What is a query?
-                </h2>
-                <p>If you were to look at the data in this database, you would see that the tables are huge! There are so many data points; it simply isn’t possible to go through the tables row by row to find the information we need. What are we supposed
-                    to do?</p>
-                <p>
-                    This is where queries come in. Queries are statements we construct to get data from the database. Queries read like natural English (for the most part). Let's try a few queries against our database. For each of the boxes below, click the "run" to "execute"
-                    the query in the box. You can edit the queries right here on the page to explore further. (Note that SQL commands are not case-sensitive, but it's conventional to capitalize them for readability. You can also use new lines and white
-                    space as you like to format the command for readability. Most database systems require you to end a query with a semicolon (';') although the system for running them in this web page is more forgiving.)
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-brand-blue">O que é uma consulta?</h2>
+                <p class="mb-4 leading-relaxed">
+                    Se você olhasse os dados neste banco de dados, veria que as tabelas são enormes! Existem tantos pontos de dados; simplesmente não é possível percorrer as tabelas linha por linha para encontrar as informações que precisamos. O que devemos fazer?
                 </p>
-                <sql-exercise data-question="Just how many people are in this database?" data-comment="Don't worry about exactly what this means, but know that you can change 'person' to any other table from the ERD to learn how many rows that table has.  Try it!" data-default-text="SELECT count(*)
+                <p class="mb-4 leading-relaxed">
+                    É aqui que entram as consultas. Consultas são declarações que construímos para obter dados do banco de dados. As consultas leem como inglês natural (na maior parte). Vamos tentar algumas consultas em nosso banco de dados. Para cada uma das caixas abaixo, clique em "executar" para "executar" a consulta na caixa. Você pode editar as consultas diretamente aqui na página para explorar mais. (Observe que os comandos SQL não diferenciam maiúsculas de minúsculas, mas é convencional capitalizá-los para legibilidade. Você também pode usar novas linhas e espaço em branco como quiser para formatar o comando para legibilidade. A maioria dos sistemas de banco de dados exige que você termine uma consulta com ponto e vírgula (';'), embora o sistema para executá-los nesta página da web seja mais permissivo.)
+                </p>
+
+                <sql-exercise data-question="Quantas pessoas existem neste banco de dados?" data-comment="Não se preocupe com o que isso significa exatamente, mas saiba que você pode mudar 'person' para qualquer outra tabela do ERD para descobrir quantas linhas essa tabela tem. Tente!" data-default-text="SELECT count(*)
 FROM person;"></sql-exercise>
 
+                <sql-exercise data-question="O que sabemos sobre essas pessoas?" data-comment="Se você quiser todos os dados para cada linha em uma tabela, use '*' após 'SELECT'. Como você acabou de aprender, existem milhares de pessoas, então em vez de ver todas elas, limitaremos os resultados a apenas as primeiras 10. Execute isso, depois mude o nome da tabela ou o número limite e veja o que acontece." data-default-text="SELECT * FROM person LIMIT 10;"></sql-exercise>
 
-                <sql-exercise data-question="What do we know about those people?" data-comment="If you want all the data for each row in a table, use '*' after 'SELECT'.  As you just learned, there are thousands of people, so rather than see all of them, we'll limit the results to just the first 10.  Run this, then change the table name or limit number and see what happens."
-                    data-default-text="SELECT * FROM person LIMIT 10;"></sql-exercise>
-
-
-                <sql-exercise data-question="What are possible values for a column?" data-comment='When working with data, always see if you can find documentation that explains the database structure (like the ERD) and valid values. But sometimes that’s not available. Here we show how the DISTINCT keyword can give you a quick look at which values are in the database. After you run it, delete the word DISTINCT and run it again. See the difference? (After you try that, you may want to click the "reset" button and run one more time before you continue.)'
-                    data-default-text="SELECT DISTINCT type FROM crime_scene_report;"></sql-exercise>
-
+                <sql-exercise data-question="Quais são os valores possíveis para uma coluna?" data-comment="Ao trabalhar com dados, sempre veja se você pode encontrar documentação que explique a estrutura do banco de dados (como o ERD) e valores válidos. Mas às vezes isso não está disponível. Aqui mostramos como a palavra-chave DISTINCT pode dar uma olhada rápida em quais valores estão no banco de dados. Depois de executá-lo, delete a palavra DISTINCT e execute novamente. Veja a diferença? (Depois de tentar isso, você pode querer clicar no botão 'reset' e executar mais uma vez antes de continuar.)" data-default-text="SELECT DISTINCT type FROM crime_scene_report;"></sql-exercise>
             </div>
-        </div>
 
-        <div class="grid">
-            <div class="grid-item">
-                <h3>What elements does a SQL query have?</h3>
-                <p>A SQL query can contain:
-                    <ul>
-                        <li>SQL keywords (like the ​SELECT​ and ​FROM​ above)</li>
-                        <li>Column names (like the ​name​ column above)</li>
-                        <li>Table names (like the ​person​ table above)</li>
-                        <li>Wildcard characters (such as ​<code>%</code>)</li>
-                        <li>Functions</li>
-                        <li>Specific filtering criteria</li>
-                        <li>Etc</li>
-                    </ul>
-                </p>
-
-                <h4 id="sql-keywords">SQL Keywords</h4>
-                <p>
-                    SQL keywords are used to specify actions in your queries. SQL keywords are not case sensitive, but we suggest using all caps for SQL keywords so that you can easily set them apart from the rest of the query. Some frequently used keywords are:
-                </p>
-                <h5>SELECT</h5>
-                <p>SELECT​ allows us to grab data for specific columns from the database:</p>
-                <ul>
-                    <li>
-                        *​ (asterisk): it is used after ​SELECT​ to grab all columns from the table;
-                    </li>
-                    <li>
-                        column_name(s): to select specific columns, put the names of the columns after SELECT​ and use commas to separate them.
-                    </li>
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h3 class="text-2xl font-semibold mb-3">Quais elementos uma consulta SQL tem?</h3>
+                <p class="mb-4">Uma consulta SQL pode conter:</p>
+                <ul class="list-disc list-inside mb-4 space-y-2">
+                    <li>Palavras-chave SQL (como SELECT e FROM acima)</li>
+                    <li>Nomes de colunas (como a coluna name acima)</li>
+                    <li>Nomes de tabelas (como a tabela person acima)</li>
+                    <li>Caracteres curinga (como <code>%</code>)</li>
+                    <li>Funções</li>
+                    <li>Critérios específicos de filtragem</li>
+                    <li>Etc</li>
                 </ul>
-                <h5>FROM</h5>
-                <p>FROM​ allows us to specify which table(s) we care about; to select multiple tables, list the table names and use commas to separate them. (But until you learn the JOIN keyword, you may be surprised at what happens. That will come later.)</p>
 
-                <h5>WHERE</h5>
-                <p>The ​WHERE​ clause in a query is used to filter results by specific criteria.</p>
-                <p>Let's try some of these things.</p>
-                <sql-exercise data-question="Here's a simple query to get everything about a specific person. (Don't worry&mdash;all of the SSNs are made up.) " data-comment="Note that you need to use single straight quotes (') around literal text so the database can tell it apart from table and column names. After you run it, try again with Yessenia Fossen, Ted Denfip or Davina Gangwer."
-                    data-default-text="SELECT * FROM person WHERE name = 'Kinsey Erickson'"></sql-exercise>
-
-                <p>The ​AND​ keyword is used to string together multiple filtering criteria so that the filtered results meet each and every one of the criteria. (There's also an OR keyword, which returns rows that match any of the criteria.)
+                <h4 class="text-xl font-semibold mb-3">Palavras-chave SQL</h4>
+                <p class="mb-4 leading-relaxed">
+                    Palavras-chave SQL são usadas para especificar ações em suas consultas. Palavras-chave SQL não diferenciam maiúsculas de minúsculas, mas sugerimos usar todas maiúsculas para palavras-chave SQL para que você possa facilmente distingui-las do resto da consulta. Algumas palavras-chave frequentemente usadas são:
                 </p>
 
-                <sql-exercise data-question="This query only returns reports about a specific type of crime in a specific city." data-comment=" Notice that when querying for text values, you must match the data as it is in the database. Try changing 'Chicago' to 'chicago' and running the statement. Then, see if you can edit this SQL statement to find the first clue based on the prompt above."
-                    data-default-text="SELECT * FROM crime_scene_report 
-WHERE type = 'theft' 
-AND city = 'Chicago';" data-solution="SELECT * FROM crime_scene_report 
-WHERE type = 'murder' 
-AND city = 'SQL City';"></sql-exercise>
+                <h5 class="text-lg font-semibold mb-2">SELECT</h5>
+                <p class="mb-4 leading-relaxed">SELECT nos permite obter dados de colunas específicas do banco de dados:</p>
+                <ul class="list-disc list-inside mb-4 space-y-2">
+                    <li>* (asterisco): é usado após SELECT para obter todas as colunas da tabela;</li>
+                    <li>nome_da_coluna(s): para selecionar colunas específicas, coloque os nomes das colunas após SELECT e use vírgulas para separá-los.</li>
+                </ul>
 
-                <p>If you haven't found the right crime scene report yet, click "show solution" above, and replace the contents of the box with just the revealed command. (Leave out the initial <code>/*</code>) If you figured out the query that shows the
-                    single crime scene report instead of a few for the same city and type, then congratulations and disregard the word "incorrect". You'll know if you got it!
-                </p>
+                <h5 class="text-lg font-semibold mb-2">FROM</h5>
+                <p class="mb-4 leading-relaxed">FROM nos permite especificar quais tabelas nos interessam; para selecionar múltiplas tabelas, liste os nomes das tabelas e use vírgulas para separá-los. (Mas até você aprender a palavra-chave JOIN, você pode se surpreender com o que acontece. Isso virá depois.)</p>
 
-                <h4 id='wildcards'>Wildcards and other functions for partial matches</h4>
-
-                <p>Sometimes you only know part of the information you need. SQL can handle that. Special symbols that represent unknown characters are called "wildcards," and SQL supports two. The most common is the <code>%</code> wildcard.
-                </p>
-                <p>When you place a <code>%</code> wildcard in a query string, the SQL system will return results that match the rest of the string exactly, and have anything (or nothing) where the wildcard is. For example,
-                    <code>'Ca%a'</code> matches <code>Canada</code> and <code>California</code>.</p>
-                <p>The other, less commonly used wildcard, is <code>_</code>. This one means 'match the rest of the text, as long as there's exactly one character in exactly the position of the <code>_</code>, no matter what it is. So,
-                    <code>'B_b'</code> would match <code>'Bob'</code> and <code>'Bub'</code> but not <code>'Babe'</code> or
-                    <code>'Bb'</code>.</p>
-                <p><strong>Important:</strong> When using wildcards, you don't use the <code>=</code> symbol; instead, you use
-                    <code>LIKE</code>.
-                </p>
-
-                <sql-exercise data-question="Try out some wildcards." data-comment="Once you run this command, try variations like 'Irvin_' and 'I%e' -- and then explore some more." data-default-text="SELECT DISTINCT city 
-FROM crime_scene_report 
-WHERE city LIKE 'I%';"></sql-exercise>
-
-                <p>SQL also supports numeric comparisons like <code>&lt;</code> (less than) and <code>&gt;</code> (greater than). You can also use the keywords <code>BETWEEN</code> and <code>AND</code> -- and all of those work with words as well as numbers.
-
-                </p>
-
-
-                <sql-exercise data-question="Try out some comparison operators." data-comment="" data-default-text="SELECT DISTINCT city 
-FROM crime_scene_report 
-WHERE city BETWEEN 'W%' AND 'Z%';"></sql-exercise>
-
-                <p>We've mentioned that SQL commands are not case-sensitive, but <code>WHERE</code> query values for
-                    <code>=</code> and <code>LIKE</code> are. Sometimes you don't know how the text is stored in the database. SQL provides a couple of functions which can smooth that out for you. They're called <code>UPPER()</code> and
-                    <code>LOWER()</code>, and you can probably figure out what they do, especially if you explore in the box below.
-                </p>
-
-                <sql-exercise data-question="Try out UPPER() and LOWER()." data-comment="" data-default-text="SELECT DISTINCT city 
-FROM crime_scene_report 
-WHERE LOWER(city) ='sql city';"></sql-exercise>
-
-
+                <h5 class="text-lg font-semibold mb-2">WHERE</h5>
+                <p class="mb-4 leading-relaxed">A cláusula WHERE em uma consulta é usada para filtrar resultados por critérios específicos.</p>
             </div>
         </div>
+    </main>
 
-        <div id="credits" class="grid">
-            <div class="grid-item">
-                <h2>Digging deeper</h2>
-
-                <h3>SQL Aggregate Functions</h3>
-                <p>
-                    Sometimes the questions you want to ask aren’t as simple as finding the row of data that fits a set of criteria. You may want to ask more complex questions such as “Who is the oldest person?” or “Who is the shortest person?” <em>Aggregate functions</em>                    can help you answer these questions. In fact, you learned an aggregate function above, <code>COUNT</code>.
-                </p>
-                <p>
-                    How old is the oldest person with a drivers license? With a small amount of data, you might be able to just eyeball it, but there thousands of records in the <code>drivers_license</code> table. (Try <code>COUNT</code> if you want to
-                    know just how many!) You can't just look over that list to find the answer.
-                </p>
-                <p>Here are a few useful aggregate functions SQL provides:
-
-                    <dl>
-                        <dt>
-              MAX
-            </dt>
-                        <dd>
-                            finds the maximum value
-                        </dd>
-                        <dt>
-              MIN
-            </dt>
-                        <dd>
-                            finds the minimum value
-                        </dd>
-                        <dt>
-              SUM
-            </dt>
-                        <dd>
-                            calculates the sum of the specified column values
-                        </dd>
-                        <dt>
-              AVG
-            </dt>
-                        <dd>
-                            calculates the average of the specified column values
-                        </dd>
-                        <dt>
-              COUNT​
-            </dt>
-                        <dd>
-                            counts the number of specified column values
-                        </dd>
-                    </dl>
-                </p>
-                <sql-exercise data-question="Run this query, then try some of the other aggregate functions." data-comment="" data-default-text="SELECT max(age) FROM drivers_license;"></sql-exercise>
-
-                <p>There's another way to find minimum and maximum values, while also seeing more of the data. You can control the sort order of results you get. It's really quite intuitive: just use <code>ORDER BY</code> followed by a column name. It can
-                    be challenging when there's a lot of data! (When people get serious about working with SQL, they use better tools than this web-based system.) By default, ORDER BY goes in "ascending" (smallest to largest, or A to Z) order, but you
-                    can be specific with <code>ASC</code> for ascending, or you can reverse it with <code>DESC</code>.
-                </p>
-                <sql-exercise data-question="Run this query to see how to control sort order." data-comment="After you've run it, change ASC to DESC, or take that part out completely to see how the results differ. Try sorting on other columns." data-default-text="SELECT * FROM drivers_license ORDER BY age ASC LIMIT 10"></sql-exercise>
-
-                <p>By now, you know enough SQL to identify the two witnesses. Give it a try!</p>
-                <sql-exercise data-question="Write a query that identifies the first witness." data-comment="There's more than one way to do it, so you may learn the answer even if the results say 'Incorrect'" data-default-text="
-
-
-" data-solution="SELECT * FROM person 
-WHERE address_street_name = 'Northwestern Dr' 
-ORDER BY address_number DESC LIMIT 1;"></sql-exercise>
-
-                <sql-exercise data-question="Write a query that identifies the second witness." data-comment="There's more than one way to do it, so you may learn the answer even if the results say 'Incorrect'" data-default-text="
-
-
-" data-solution="SELECT * FROM person 
-WHERE name like '%Annabel%'
-AND address_street_name = 'Franklin Ave';"></sql-exercise>
-
-            </div>
-        </div>
-
-        <div id="joins" class="grid">
-            <div class="grid-item">
-                <h2>Making connections</h2>
-
-                <h3>Joining tables</h3>
-                <p>Until now, we’ve been asking questions that can be answered by considering data from only a single table. But what if we need to ask more complex questions that simultaneously require data from two different tables? That’s where ​JOIN​ comes in.</p>
-
-                <p>More experienced SQL folks use a few different kinds of JOIN -- you may hear about INNER, OUTER, LEFT and RIGHT joins. Here, we'll just talk about the most common kind of JOIN, the INNER JOIN. Since it's common, you can leave out INNER
-                    in your SQL commands.</p>
-
-                <p>
-                    The most common way to join tables is using primary key and foreign key columns. Refer back to the Entity Relationship Diagram (ERD) above if you don't remember what those are, or to see the key relationships between tables in our database. You can do
-                    joins on any columns, but the key columns are optimized for fast results. It is probably easier to show how joins work with our interactive SQL system than to write them.
-                </p>
-
-                <sql-exercise data-question="Run this query to identify the biggest annual earners in our database. (Again, trust us, the SSNs are all made up.)" data-comment="Try editing the query to return more data, or to find people with different incomes. Try joining other tables together. You can use * in between SELECT and FROM here like with any other query, so try that too."
-                    data-default-text="SELECT person.name, income.annual_income 
-FROM income 
-JOIN person 
-  ON income.ssn = person.ssn 
-WHERE annual_income > 450000"></sql-exercise>
-
-                <p>Sometimes you want to connect more than one table. SQL lets you join as many tables in a query as you like.
-                </p>
-
-                <sql-exercise data-question="Let's see if big earners have other characteristics in common." data-comment="This example shows how to join more than one table. It also, incidentally, shows how you can use 'aliases' for the various tables in your query so that you don't have to type as much. Finally, it shows how you can change how a column name shows up in the results, which can be handy."
-                    data-default-text="SELECT name, annual_income as income, 
-gender, eye_color as eyes, hair_color as hair
-FROM income i
-JOIN person p
-  ON i.ssn = p.ssn 
-JOIN drivers_license dl
-  ON p.license_id = dl.id
-WHERE annual_income > 450000"></sql-exercise>
-
-
-                <p>Now that you know how to join tables, you should be able to find the interview transcripts for the two witnesses you identified before. Give it a try!</p>
-
-                <sql-exercise data-question="Write a query that shows the interview transcripts for our two subjects." data-comment="There's more than one way to do it, so you may learn the answer even if the results say 'Incorrect'. The official solution does it in one query, but you don't have to. Technically you don't even need to use a JOIN to get the transcripts, but give it a try."
-                    data-default-text="
-
-
-" data-solution="SELECT person.name, interview.transcript
-FROM person JOIN interview
-ON person.id = interview.person_id
-WHERE person.id = 14887 OR person.id = 16371;"></sql-exercise>
-            </div>
-        </div>
-
-
-
-        <div id="go-get-em" class="grid">
-            <div class="grid-item">
-                <h3>Go Get 'em!</h3>
-                <p>
-                    Now you know enough SQL to solve the mystery. You'll need to read the ERD and make some reasonable assumptions, but there's no other syntax that you need!
-                </p>
-                <sql-exercise data-question="Find the murderer!" data-comment="It will take more than one query to find the killer, but you can just keep editing this box, keeping notes on your results along the way. When you think you know the answer, go to the next section."
-                    data-default-text="
-
-
-"></sql-exercise>
-
-            </div>
-        </div>
-
-        <div class="grid">
-            <div class="grid-item">
-                <h3>Check your solution</h3>
-                <sql-exercise data-question="Did you find the killer?" data-comment="" data-default-text="INSERT INTO solution VALUES (1, 'Insert the name of the person you found here');
-
-SELECT value FROM solution;"></sql-exercise>
-
-            </div>
-        </div>
-
-        <div id="credits" class="grid">
-            <div class="grid-item">
-                <h3>Credits</h3>
-                <p>The SQL Murder Mystery was created by <a href="https://twitter.com/joonparkmusic">Joon Park</a> and <a href="https://twitter.com/Cathy_MeiyingHe">Cathy He</a> while they were Knight Lab fellows. See the <a href="https://github.com/NUKnightLab/sql-mysteries">GitHub repository</a>                    for more information.</p>
-                <p>Adapted and produced for the web by <a href="https://twitter.com/joegermuska">Joe Germuska</a>.</p>
-                <p>This mystery was inspired by <a href="https://github.com/veltman/clmystery">a crime in the neighboring
-            Terminal City.</a></p>
-                <p>Web-based SQL is made possible by <a href="https://github.com/sql-js/sql.js/">SQL.js</a></p>
-                <p>SQL query custom web components created and released to the public domain by Zi Chong Kao, creator of <a href="https://selectstarsql.com/">Select Star SQL.</a></p>
-                <p>Detective illustration courtesy of <a href="https://www.vecteezy.com/">Vectors by Vecteezy</a></p>
-                <p>Original code for this project is released under the <a href="https://github.com/NUKnightLab/sql-mysteries/blob/master/LICENSE">MIT License</a></p>
-                <p>Original text and other content for this project is released under <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons CC BY-SA 4.0</a></p>
-            </div>
-        </div>
-    </div>
-
-    <footer class="footer-knightlab--dark">
-        <div class="container">
-            <div class='grid grid-center'>
-                <div class='column-2 column-4-phone column-4-tablet'>
-                    <a href="http://knightlab.northwestern.edu" target="_blank">
-                        <img src="https://cdn.knightlab.com/libs/orangeline/0.1.1/assets/logo-knightlab-stacked-dark-small.png" style="margin-left:auto;">
-                    </a>
-                    <ul class="list--social text-align-center">
-                        <li><a class="link--no-style" href="http://www.twitter.com/knightlab" target="_blank" title="Knight Lab on Twitter"><span class="icon-twitter"></span></a></li>
-                        <li><a class="link--no-style" href="https://www.facebook.com/knightlab" target="_blank" title="Knight Lab on Facebook"><span class="icon-facebook"></span></a></li>
-                        <li><a class="link--no-style" href="https://github.com/NUKnightLab/" target="_blank" title="Knight Lab on GitHub"><span class="icon-github"></span></a></li>
-                    </ul>
-                </div>
-                <div class='column-4 column-5-tablet column-6-phone footer-description'>
-                    <p>
-                        The <a title="Northwestern University" href="http://www.northwestern.edu/" target="_blank">Northwestern
-              University</a> Knight Lab is a team of technologists and journalists working at advancing news media innovation through exploration and experimentation.
-                    </p>
-                    <div class="grid-size-2 grid-size-2-phone">
-                        <div class="grid-item">
-                            <a title="Medill School of Journalism, Media, Integrated Marketing Communications" href="http://www.medill.northwestern.edu/" target="_blank">
-                                <img src="https://cdn.knightlab.com/libs/orangeline/0.1.1/assets/logo-medill-dark.png">
-                            </a>
-                        </div>
-
-                        <div class="grid-item">
-                            <a title="McCormick School of Engineering" href="http://www.mccormick.northwestern.edu/" target="_blank">
-                                <img src="https://cdn.knightlab.com/libs/orangeline/0.1.1/assets/logo-mccormick-dark.png">
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="grid grid-center">
-                <div class="grid-item">
-                    <address itemscope="" itemtype="http://data-vocabulary.org/Organization">
-            <span style="display:none;" itemprop="name"
-              title="Knight Lab | Advancing news media innovation through exploration and experimentation."
-              class="address-name">Knight Lab</span>
-            <span itemprop="tel" class="tel">(847) 467-4971</span>
-            <span itemprop="address" itemscope="" itemtype="http://data-vocabulary.org/Address" class="address">
-              <span itemprop="street-address" class="street-address">1845 Sheridan Road</span>
-              <span class="room-num">Fisk #109 &amp; #111</span>
-              <div class="address-group">
-                <span itemprop="locality">Evanston,</span> <span itemprop="region">IL</span> <span
-                  itemprop="postal-code">60208 </span>
-                <span style="display:none;" itemprop="geo" itemscope="" itemtype="http://www.data-vocabulary.org/Geo/"
-                  class="geo">
-                  Latitude: <span itemprop="latitude">42.056893</span><br>Longitude:
-                  <span itemprop="longitude">-87.676735</span>
-                </span>
-                <a style="display:none;" href="http://knightlab.northwestern.edu" itemprop="url" class="url">Northwesten
-                  University Knight Lab | Advancing media innovation through exploration and experimentation.</a>
-              </div>
-            </span>
-          </address>
-                    <span class="copyright">© Copyright 2019 Northwestern University</span>
-                </div>
-            </div>
+    <footer class="bg-gray-900 mt-12 py-8">
+        <div class="container mx-auto text-center text-gray-400">
+            <p>&copy; 2025 Northwestern University. Todos os Direitos Reservados.</p>
+            <p class="mt-1">Adaptado e reestilizado com base no projeto original do <a href="http://knightlab.northwestern.edu" target="_blank" class="text-brand-blue hover:underline">Knight Lab</a>.</p>
         </div>
     </footer>
-
-    <script src="https://cdn.knightlab.com/libs/orangeline/0.1.1/js/orangeline.js"></script>
-
 </body>
-
 </html>

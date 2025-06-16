@@ -47,15 +47,10 @@ function query(sql, cb, err_cb) {
 
 function datatable (data) {
   var tbl = document.createElement("table");
-  tbl.className = 'datatable'
+  tbl.className = 'results-table';
 
   var header_labels = data[0].columns;
-  for (var idx in header_labels) {
-    var col = document.createElement('col');
-    col.className = header_labels[idx];
-    tbl.appendChild(col);
-  }
-
+  
   // create header row
   var thead = tbl.createTHead();
   var row = thead.insertRow(0);
@@ -256,42 +251,21 @@ class sqlExercise extends HTMLElement {
 
     form['onsubmit'] = (e) => {
       e && e.preventDefault();
-      var result_div = document.createElement('div');
-
-      var handleSubmit = (submission_data) => {
-        result_div.className = 'returnOkay';
-
-        if (solution) {
-          var verdict_div = document.createElement('div');
-          result_div.appendChild(verdict_div);
-
-          query(solution, (solution_data) => {
-            var submission_u = submission_data[0].values;
-            var solution_u = solution_data[0].values;
-            if (!orderSensitive) {
-                submission_u.sort();
-                solution_u.sort();
-            }
-            var verdict = arraysEqual(submission_u, solution_u) ? "Correct" : "Incorrect";
-            // http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
-            verdict_div.innerText = verdict;
-          });
-        }
-        if (submission_data.length > 0) {
-          result_div.appendChild(datatable(submission_data));
+      var sql = editor.getValue();
+      query(sql, (results) => {
+        if (results[0].columns) {
+          form.output.innerHTML = '';
+          form.output.appendChild(datatable(results));
         } else {
-          result_div.insertAdjacentHTML("beforeend", `No data returned`);
+          if (results[0] === "Essa não é a pessoa correta. Tente novamente!") {
+            form.output.innerHTML = `<div class='returnError'>Essa não é a pessoa correta. Tente novamente!</div>`;
+          } else {
+            form.output.innerHTML = `<div class='returnOkay'>${results[0]}</div>`;
+          }
         }
-      }
-
-      var handleError = (e) => {
-        result_div.className = 'returnError';
-        result_div.innerText = e.message;
-      }
-
-      query(editor.getValue(), handleSubmit, handleError);
-      outputBox.innerHTML = '';
-      outputBox.appendChild(result_div);
+      }, (err) => {
+        form.output.innerHTML = `<div class='returnError'>${err.message}</div>`;
+      });
     };
 
     form['onkeydown'] = (e) => {
@@ -318,7 +292,7 @@ class sqlExercise extends HTMLElement {
     resetButton.value = 'Reset';
     resetButton.onclick = (e) => {
       editor.setValue(defaultText);
-      outputBox.textContent = '';
+      form.output.textContent = '';
     };
     inputArea.appendChild(resetButton);
     form.appendChild(inputArea);
@@ -329,6 +303,7 @@ class sqlExercise extends HTMLElement {
 
     var outputBox = document.createElement('output');
     outputBox.name = 'output';
+    outputBox.className = 'sql-output';
     outputArea.appendChild(outputBox);
     form.appendChild(outputArea);
 

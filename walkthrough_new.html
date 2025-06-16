@@ -1,0 +1,242 @@
+<!DOCTYPE HTML>
+<html lang="pt-BR">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+    <title>O Mistério de Assassinato em SQL: Passo a Passo Detalhado</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css" />
+    <script src="https://unpkg.com/@webcomponents/custom-elements@1.2.0/custom-elements.min.js"></script>
+    <script src="scripts/codemirror.js"></script>
+    <script src="scripts/codemirrorsql.js"></script>
+    <script src="scripts/autorefresh.js"></script>
+    <script src="scripts/main.js"></script>
+    <script>
+        window.onload = () => loadData('sql-murder-mystery.db');
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #2a2f30;
+            color: #ffffff;
+        }
+
+        .CodeMirror {
+            border: 1px solid #04abe3 !important;
+            border-radius: 0.75rem;
+            background-color: #1e293b !important;
+            color: white !important;
+            font-family: monospace;
+            height: auto;
+            font-size: 1rem;
+        }
+
+        .sqlExInputArea input[type="submit"],
+        .sqlExInputArea input[type="button"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 1rem;
+        }
+
+        .sqlExInputArea input[type="submit"] {
+            background-color: #04abe3;
+            color: white;
+            box-shadow: 0 4px 6px rgba(4, 171, 227, 0.2);
+        }
+
+        .sqlExInputArea input[type="submit"]:hover {
+            background-color: #038ac1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(4, 171, 227, 0.3);
+        }
+
+        .sqlExInputArea input[type="button"] {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            box-shadow: 0 4px 6px rgba(45, 55, 72, 0.2);
+        }
+
+        .sqlExInputArea input[type="button"]:hover {
+            background-color: #1a202c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(45, 55, 72, 0.3);
+        }
+
+        .sqlExInputArea {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .sqlExInputArea input[type="submit"]::before {
+            content: "▶";
+            margin-right: 0.5rem;
+            font-size: 0.8em;
+        }
+
+        .sqlExInputArea input[type="button"]::before {
+            content: "↺";
+            margin-right: 0.5rem;
+            font-size: 0.8em;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 1rem 0;
+        }
+
+        .results-table thead {
+            background-color: #04abe3;
+        }
+
+        .results-table th {
+            color: white;
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #038ac1;
+        }
+
+        .results-table td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #334155;
+            color: #e2e8f0;
+        }
+
+        .results-table tbody tr:hover {
+            background-color: #2d3748;
+            transition: background-color 0.2s ease;
+        }
+
+        .returnError {
+            color: #ef4444;
+            padding: 1rem;
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border-left: 4px solid #ef4444;
+        }
+
+        .returnOkay {
+            color: #10b981;
+            padding: 1rem;
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border-left: 4px solid #10b981;
+        }
+    </style>
+</head>
+
+<body class="bg-dark-bg text-white font-sans text-lg">
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="http://knightlab.com" class="flex items-center">
+                <img src="img/cis-logo.png" alt="Logo" class="h-10">
+            </a>
+            <h1 class="text-2xl font-bold text-gray-800 hidden md:block">
+                O Mistério de Assassinato em SQL
+            </h1>
+            <div class="flex items-center space-x-4">
+                <a href="https://github.com/NUKnightLab/sql-mysteries" target="_blank" class="text-gray-600 hover:text-brand-blue transition-colors">
+                    <i class="fab fa-github fa-2x"></i>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        <div class="text-center pt-8 pb-12">
+            <h1 class="text-5xl md:text-6xl font-bold">Passo a Passo do Mistério de Assassinato em SQL</h1>
+            <h2 class="text-2xl text-gray-300 mt-3">Você consegue descobrir quem foi o culpado?</h2>
+        </div>
+
+        <div class="space-y-8">
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <div class="md:flex md:space-x-8 items-center">
+                    <img src="174092-clue-illustration.png" class="w-full md:w-1/3 rounded-lg mb-4 md:mb-0" alt="Ilustração decorativa de um detetive olhando para um quadro de evidências.">
+                    <p class="text-xl leading-relaxed">
+                        Houve um assassinato na Cidade SQL! O "Mistério de Assassinato em SQL" foi projetado para ser tanto uma lição autodirigida para aprender conceitos e comandos de SQL quanto um jogo divertido para usuários experientes de SQL resolverem um crime intrigante.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-brand-blue">Passo a Passo para Iniciantes em SQL</h2>
+                <p class="mb-3 leading-relaxed">
+                    Se você já está confortável com SQL, pode <a href="index.html#detetives" class="text-brand-blue font-semibold hover:underline">pular estas explicações</a> e testar suas habilidades! Abaixo, introduzimos alguns conceitos básicos de SQL e detalhes suficientes para resolver o assassinato. Se você quiser uma introdução mais completa ao SQL, experimente o <a href="https://selectstarsql.com/" target="_blank" rel="noopener noreferrer" class="text-brand-blue font-semibold hover:underline">Select Star SQL</a>.
+                </p>
+            </div>
+
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <p class="mb-4 leading-relaxed">
+                    Um crime ocorreu e o detetive precisa da sua ajuda. O detetive lhe deu o relatório da cena do crime, mas você o perdeu. Você lembra vagamente que o crime foi um <strong>assassinato</strong> que ocorreu por volta de <strong>15 de janeiro de 2018</strong> e que aconteceu na <strong>Cidade SQL</strong>. Comece recuperando o relatório da cena do crime correspondente do banco de dados do departamento de polícia.
+                </p>
+            </div>
+
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-brand-blue">Algumas Definições</h2>
+                
+                <h3 class="text-2xl font-semibold mb-3">O que é SQL?</h3>
+                <p class="mb-4 leading-relaxed">
+                    SQL, que significa Structured Query Language (Linguagem de Consulta Estruturada), é uma forma de interagir com bancos de dados relacionais e tabelas de uma maneira que nos permite obter informações específicas e significativas.
+                </p>
+
+                <h3 class="text-2xl font-semibold mb-3">O que é um banco de dados relacional?</h3>
+                <p class="mb-4 leading-relaxed">
+                    Bancos de dados relacionais são compostos por <em>tabelas</em>, que são muito parecidas com planilhas. Cada coluna na tabela tem um nome e um tipo de dado (texto, número, etc.), e cada linha na tabela é uma instância específica do que a tabela é "sobre".
+                </p>
+
+                <h3 class="text-2xl font-semibold mb-3">O que é um ERD?</h3>
+                <p class="mb-4 leading-relaxed">
+                    ERD, que significa Entity Relationship Diagram (Diagrama de Relacionamento de Entidades), é uma representação visual dos relacionamentos entre todas as tabelas relevantes dentro de um banco de dados.
+                </p>
+            </div>
+
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-brand-blue">O que é uma consulta?</h2>
+                <p class="mb-4 leading-relaxed">
+                    Consultas são declarações que construímos para obter dados do banco de dados. As consultas leem como inglês natural (na maior parte). Vamos tentar algumas consultas em nosso banco de dados.
+                </p>
+
+                <sql-exercise data-question="Quantas pessoas existem neste banco de dados?" data-comment="Não se preocupe com o que isso significa exatamente, mas saiba que você pode mudar 'person' para qualquer outra tabela do ERD para descobrir quantas linhas essa tabela tem. Tente!" data-default-text="SELECT count(*)
+FROM person;"></sql-exercise>
+
+                <sql-exercise data-question="O que sabemos sobre essas pessoas?" data-comment="Se você quiser todos os dados para cada linha em uma tabela, use '*' após 'SELECT'. Como você acabou de aprender, existem milhares de pessoas, então em vez de ver todas elas, limitaremos os resultados a apenas as primeiras 10." data-default-text="SELECT * FROM person LIMIT 10;"></sql-exercise>
+
+                <sql-exercise data-question="Quais são os valores possíveis para uma coluna?" data-comment="Ao trabalhar com dados, sempre veja se você pode encontrar documentação que explique a estrutura do banco de dados e valores válidos. Aqui mostramos como a palavra-chave DISTINCT pode dar uma olhada rápida em quais valores estão no banco de dados." data-default-text="SELECT DISTINCT type FROM crime_scene_report;"></sql-exercise>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-900 mt-12 py-8">
+        <div class="container mx-auto text-center text-gray-400">
+            <p>&copy; 2025 Northwestern University. Todos os Direitos Reservados.</p>
+            <p class="mt-1">Adaptado e reestilizado com base no projeto original do <a href="http://knightlab.northwestern.edu" target="_blank" class="text-brand-blue hover:underline">Knight Lab</a>.</p>
+        </div>
+    </footer>
+</body>
+</html> 

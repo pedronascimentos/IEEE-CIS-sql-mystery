@@ -1,22 +1,87 @@
 /* datatable */
 
 .datatable {
-    border: solid 1px grey;
+    border: none;
     border-collapse: collapse;
-    font-size: 16px;
-}
-
-.datatable thead,
-td {
-    padding: 3px;
-    border: solid 1px grey;
+    font-size: 14px;
+    width: 100%;
+    margin: 20px 0;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .datatable thead {
-    background: lightgrey;
-    font-weight: bold;
+    background: #2c3e50;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
 }
 
+.datatable th,
+.datatable td {
+    padding: 12px 15px;
+    text-align: left;
+    border: none;
+}
+
+.datatable tbody tr {
+    border-bottom: 1px solid #eee;
+    transition: all 0.3s ease;
+}
+
+.datatable tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.datatable tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* SQL Run Button */
+.sqlExInputArea input[type="submit"] {
+    background-color: #2c3e50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sqlExInputArea input[type="submit"]:hover {
+    background-color: #34495e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sqlExInputArea input[type="submit"]:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* SQL Output Area */
+.sqlExOutputArea {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+}
+
+.sqlExOutputArea .returnOkay {
+    color: #27ae60;
+    font-weight: 500;
+}
+
+.sqlExOutputArea .returnError {
+    color: #e74c3c;
+    font-weight: 500;
+}
 
 /* sql quiz component */
 
