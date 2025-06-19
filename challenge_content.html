@@ -1,0 +1,385 @@
+<!DOCTYPE HTML>
+<html lang="pt-BR">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+    <title>Murder Mystery SQL IEEE CIS</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-bg': '#2a2f30',
+                        'card-bg': '#3c4245',
+                        'brand-blue': '#04abe3',
+                        'brand-blue-darker': '#038ac1',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #2a2f30;
+            color: #ffffff;
+        }
+
+        /* Estilizando o editor CodeMirror para o tema escuro */
+        .CodeMirror {
+            border: 1px solid #04abe3 !important;
+            border-radius: 0.75rem;
+            background-color: #1e293b !important;
+            color: white !important;
+            font-family: monospace;
+            height: auto;
+            font-size: 1rem; /* Tamanho da fonte do editor */
+        }
+        .CodeMirror-gutters { background-color: #1e293b !important; border-right: 1px solid #334155 !important; }
+        .CodeMirror-guttermarker { color: white; }
+        .CodeMirror-linenumber { color: #9ca3af; }
+        .CodeMirror-cursor { border-left: 1px solid white !important; }
+        .cm-s-default .cm-keyword { color: #f97316; }
+        .cm-s-default .cm-atom { color: #60a5fa; }
+        .cm-s-default .cm-number { color: #a78bfa; }
+        .cm-s-default .cm-string { color: #22c55e; }
+        .cm-s-default .cm-operator { color: #04abe3; }
+        .cm-s-default .cm-variable { color: #eab308; }
+
+        /* Estilos para o botão de execução (RUN) */
+        sql-exercise button {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.8rem 2rem;
+            background-color: #04abe3;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 6px rgba(4, 171, 227, 0.2);
+        }
+        sql-exercise button:hover {
+            background-color: #038ac1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(4, 171, 227, 0.3);
+        }
+        sql-exercise button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(4, 171, 227, 0.2);
+        }
+        
+        /* Estilos para a tabela de resultados (TEMA ESCURO) */
+        .sql-exercise .results table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1.5rem;
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .sql-exercise .results th {
+            background-color: #04abe3;
+            color: white;
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #038ac1;
+        }
+        .sql-exercise .results td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #334155;
+            color: #e2e8f0;
+        }
+        .sql-exercise .results tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .sql-exercise .results tbody tr:hover {
+            background-color: #2d3748;
+            transition: background-color 0.2s ease;
+        }
+        .sql-exercise .results tbody tr:hover td {
+            color: #ffffff;
+        }
+
+        /* Scrollbar Personalizada */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(4, 171, 227, 0.5); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(4, 171, 227, 0.8); }
+
+        /* Estilo para mostrar/esconder o schema */
+        #experienced-schema {
+            display: none;
+            margin-top: 1em;
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            border: 2px solid #04abe3;
+        }
+        #experienced-schema.show {
+            display: block;
+        }
+
+        /* Estilos para a tabela de resultados SQL */
+        .sql-output {
+            width: 100%;
+            margin-top: 1rem;
+            overflow-x: auto;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 1rem 0;
+        }
+
+        .results-table thead {
+            background-color: #04abe3;
+        }
+
+        .results-table th {
+            color: white;
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #038ac1;
+        }
+
+        .results-table td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #334155;
+            color: #e2e8f0;
+        }
+
+        .results-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .results-table tbody tr:hover {
+            background-color: #2d3748;
+            transition: background-color 0.2s ease;
+        }
+
+        .results-table tbody tr:hover td {
+            color: #ffffff;
+        }
+
+        /* Estilo para mensagens de erro e sucesso */
+        .returnError {
+            color: #ef4444;
+            padding: 1rem;
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border-left: 4px solid #ef4444;
+        }
+
+        .returnOkay {
+            color: #10b981;
+            padding: 1rem;
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border-left: 4px solid #10b981;
+        }
+
+        /* Estilos para os botões Run e Reset */
+        .sqlExInputArea input[type="submit"],
+        .sqlExInputArea input[type="button"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 1rem;
+        }
+
+        /* Estilo específico para o botão Run */
+        .sqlExInputArea input[type="submit"] {
+            background-color: #04abe3;
+            color: white;
+            box-shadow: 0 4px 6px rgba(4, 171, 227, 0.2);
+        }
+
+        .sqlExInputArea input[type="submit"]:hover {
+            background-color: #038ac1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(4, 171, 227, 0.3);
+        }
+
+        .sqlExInputArea input[type="submit"]:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(4, 171, 227, 0.2);
+        }
+
+        /* Estilo específico para o botão Reset */
+        .sqlExInputArea input[type="button"] {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            box-shadow: 0 4px 6px rgba(45, 55, 72, 0.2);
+        }
+
+        .sqlExInputArea input[type="button"]:hover {
+            background-color: #1a202c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(45, 55, 72, 0.3);
+        }
+
+        .sqlExInputArea input[type="button"]:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(45, 55, 72, 0.2);
+        }
+
+        /* Container dos botões */
+        .sqlExInputArea {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* Ícones para os botões */
+        .sqlExInputArea input[type="submit"]::before {
+            content: "▶";
+            margin-right: 0.5rem;
+            font-size: 0.8em;
+        }
+
+        .sqlExInputArea input[type="button"]::before {
+            content: "↺";
+            margin-right: 0.5rem;
+            font-size: 0.8em;
+        }
+    </style>
+    
+    <meta name="keywords" content="SQL, banco de dados, jogo, mistério, assassinato">
+    <meta name="description" content="Use consultas SQL para resolver um misterioso assassinato. Adequado para iniciantes ou detetives de SQL experientes.">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css" />
+    <script src="https://unpkg.com/@webcomponents/custom-elements@1.2.0/custom-elements.min.js"></script>
+    <script src="scripts/codemirror.js"></script>
+    <script src="scripts/codemirrorsql.js"></script>
+    <script src="scripts/autorefresh.js"></script>
+    <script src="scripts/main.js"></script>
+    <script>
+        window.onload = () => loadData('sql-murder-mystery.db');
+    </script>
+</head>
+
+<body class="bg-dark-bg text-white font-sans text-lg">
+
+
+
+    <main class="container mx-auto p-4 md:p-8">
+
+
+        <div class="space-y-8">
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <div class="md:flex md:space-x-8 items-center">
+                    <img src="174092-clue-illustration.png" class="w-full md:w-1/3 rounded-lg mb-4 md:mb-0" alt="Ilustração decorativa de um detetive olhando para um quadro de evidências.">
+                    <p class="text-xl leading-relaxed">
+                        Houve um assassinato na Cidade de SQL! O "Murder Mystery SQL" resolva os desafios e encontre o assassino!
+                    </p>
+                </div>
+            </div>
+
+            <div id="detetives" class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-brand-blue">Detetives de SQL experientes começam aqui</h2>
+                <p class="mb-4 leading-relaxed">
+                    Um crime ocorreu e o detetive precisa da sua ajuda. O detetive lhe deu o relatório da cena do crime, mas você o perdeu. Você lembra vagamente que o crime foi um <strong>assassinato</strong> que ocorreu por volta de <strong>15 de janeiro de 2018</strong> e que aconteceu na <strong>Cidade SQL</strong>. Comece recuperando o relatório da cena do crime correspondente do banco de dados do departamento de polícia.
+                </p>
+
+                <h3 class="text-2xl font-semibold mb-3">Explorando a Estrutura do Banco de Dados</h3>
+                <p class="mb-4 leading-relaxed">
+                    Usuários experientes de SQL podem usar consultas para inferir a estrutura de um banco de dados. O Murder Mystery SQL é construído usando SQLite. Use este comando para encontrar as tabelas no banco de dados.
+                </p>
+                <sql-exercise data-question="Execute esta consulta para encontrar os nomes das tabelas neste banco de dados." data-comment="Este comando é específico do SQLite." data-default-text="SELECT name 
+ FROM sqlite_master 
+ WHERE type = 'table'"></sql-exercise>
+
+                <p class="mt-8 mb-4 leading-relaxed">
+                    Além de saber os nomes das tabelas, você precisa saber como cada uma está estruturada. Veja como fazer isso com o SQLite.
+                </p>
+                <sql-exercise data-question="Execute esta consulta para encontrar a estrutura da tabela `crime_scene_report`" data-comment="Altere o valor de 'name' para ver a estrutura de outras tabelas." data-default-text="SELECT sql 
+ FROM sqlite_master 
+ WHERE name = 'crime_scene_report'"></sql-exercise>
+            </div>
+
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h3 class="text-3xl font-bold mb-4 text-brand-blue">O resto é com você!</h3>
+                <p class="mb-3 leading-relaxed">Se você está realmente confortável com SQL, provavelmente consegue resolver a partir daqui.</p>
+                <p class="mb-4 leading-relaxed">
+                    Mas <a id="show-schema" href="#" class="text-brand-blue font-semibold hover:underline">clique aqui</a> para mostrar o diagrama do esquema (schema).
+                    <img id="experienced-schema" src="schema.png" alt="Diagrama do banco de dados">
+                </p>
+                <p class="mb-4 leading-relaxed">E você sempre pode ir para o <a href="walkthrough.html" class="text-brand-blue font-semibold hover:underline">passo a passo</a>.</p>
+                
+                <sql-exercise data-question="Use seu conhecimento do esquema do banco de dados e comandos SQL para descobrir quem cometeu o assassinato." data-comment="Quando achar que sabe a resposta, vá para a próxima seção." data-default-text="-- Comece sua investigação aqui"></sql-exercise>
+            </div>
+            
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h3 class="text-3xl font-bold mb-4 text-brand-blue">Verifique sua solução</h3>
+                <sql-exercise data-question="Você encontrou o assassino?" data-comment="" data-default-text="INSERT INTO solution VALUES (1, 'Insira o nome da pessoa que você encontrou aqui');
+        
+SELECT value FROM solution;"></sql-exercise>
+            </div>
+
+            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
+                <h3 class="text-3xl font-bold mb-4 text-brand-blue">Créditos</h3>
+                <div class="space-y-3 text-gray-300 leading-relaxed">
+                    <p>O Murder Mystery SQL foi criado por <a href="https://twitter.com/joonparkmusic" class="text-brand-blue hover:underline">Joon Park</a> e <a href="https://twitter.com/Cathy_MeiyingHe" class="text-brand-blue hover:underline">Cathy He</a> enquanto eram bolsistas do Knight Lab. Veja o <a href="https://github.com/NUKnightLab/sql-mysteries" class="text-brand-blue hover:underline">repositório no GitHub</a> para mais informações.</p>
+                    <p>Adaptado e produzido para a Campus Party por <a href="https://github.com/pedronascimentos" class="text-brand-blue hover:underline">Pedro Henrique Monteiro</a>.</p>
+                    <p>Web-based SQL é possível graças ao <a href="https://github.com/sql-js/sql.js/" class="text-brand-blue hover:underline">SQL.js</a>.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
+
+    <script type="text/javascript">
+        // Script para mostrar o diagrama do schema
+        document.querySelector('#show-schema').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('#experienced-schema').classList.toggle('show');
+        })
+    </script>
+
+</body>
+</html>

@@ -1,34 +1,18 @@
 <!DOCTYPE HTML>
 <html lang="pt-BR">
-
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
-    <title>O Mistério de Assassinato em SQL</title>
-
+    <title>Murder Mystery SQL IEEE CIS</title>
+    <link rel="shortcut icon" href="https://media.licdn.com/dms/image/v2/C560BAQHyKK0ypPkk3Q/company-logo_200_200/company-logo_200_200/0/1630597255160?e=2147483647&v=beta&t=9Zxw9ykO3IoNpZiuadHd3vrg0wk9mHh-6T8HhJueW5M" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'dark-bg': '#2a2f30',
-                        'card-bg': '#3c4245',
-                        'brand-blue': '#04abe3',
-                        'brand-blue-darker': '#038ac1',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css" />
+    <script src="https://unpkg.com/@webcomponents/custom-elements@1.2.0/custom-elements.min.js"></script>
+    <script src="scripts/codemirror.js"></script>
+    <script src="scripts/codemirrorsql.js"></script>
+    <script src="scripts/autorefresh.js"></script>
+    <script src="scripts/main.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -36,7 +20,6 @@
             color: #ffffff;
         }
 
-        /* Estilizando o editor CodeMirror para o tema escuro */
         .CodeMirror {
             border: 1px solid #04abe3 !important;
             border-radius: 0.75rem;
@@ -44,26 +27,16 @@
             color: white !important;
             font-family: monospace;
             height: auto;
-            font-size: 1rem; /* Tamanho da fonte do editor */
+            font-size: 1rem;
         }
-        .CodeMirror-gutters { background-color: #1e293b !important; border-right: 1px solid #334155 !important; }
-        .CodeMirror-guttermarker { color: white; }
-        .CodeMirror-linenumber { color: #9ca3af; }
-        .CodeMirror-cursor { border-left: 1px solid white !important; }
-        .cm-s-default .cm-keyword { color: #f97316; }
-        .cm-s-default .cm-atom { color: #60a5fa; }
-        .cm-s-default .cm-number { color: #a78bfa; }
-        .cm-s-default .cm-string { color: #22c55e; }
-        .cm-s-default .cm-operator { color: #04abe3; }
-        .cm-s-default .cm-variable { color: #eab308; }
 
-        /* Estilos para o botão de execução (RUN) */
-        sql-exercise button {
-            display: inline-block;
-            margin-top: 1rem;
+        .sqlExInputArea input[type="submit"],
+        .sqlExInputArea input[type="button"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 0.8rem 2rem;
-            background-color: #04abe3;
-            color: white;
+            font-size: 0.95rem;
             font-weight: 600;
             border-radius: 0.5rem;
             border: none;
@@ -71,80 +44,50 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            margin-right: 1rem;
+        }
+
+        .sqlExInputArea input[type="submit"] {
+            background-color: #04abe3;
+            color: white;
             box-shadow: 0 4px 6px rgba(4, 171, 227, 0.2);
         }
-        sql-exercise button:hover {
+
+        .sqlExInputArea input[type="submit"]:hover {
             background-color: #038ac1;
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(4, 171, 227, 0.3);
         }
-        sql-exercise button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(4, 171, 227, 0.2);
-        }
-        
-        /* Estilos para a tabela de resultados (TEMA ESCURO) */
-        .sql-exercise .results table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 1.5rem;
-            background-color: #1e293b;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .sql-exercise .results th {
-            background-color: #04abe3;
-            color: white;
-            padding: 1rem 1.25rem;
-            text-align: left;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 2px solid #038ac1;
-        }
-        .sql-exercise .results td {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid #334155;
-            color: #e2e8f0;
-        }
-        .sql-exercise .results tbody tr:last-child td {
-            border-bottom: none;
-        }
-        .sql-exercise .results tbody tr:hover {
+
+        .sqlExInputArea input[type="button"] {
             background-color: #2d3748;
-            transition: background-color 0.2s ease;
-        }
-        .sql-exercise .results tbody tr:hover td {
-            color: #ffffff;
+            color: #e2e8f0;
+            box-shadow: 0 4px 6px rgba(45, 55, 72, 0.2);
         }
 
-        /* Scrollbar Personalizada */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
-        ::-webkit-scrollbar-thumb { background: rgba(4, 171, 227, 0.5); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(4, 171, 227, 0.8); }
-
-        /* Estilo para mostrar/esconder o schema */
-        #experienced-schema {
-            display: none;
-            margin-top: 1em;
-            max-width: 100%;
-            height: auto;
-            border-radius: 0.5rem;
-            border: 2px solid #04abe3;
-        }
-        #experienced-schema.show {
-            display: block;
+        .sqlExInputArea input[type="button"]:hover {
+            background-color: #1a202c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(45, 55, 72, 0.3);
         }
 
-        /* Estilos para a tabela de resultados SQL */
-        .sql-output {
-            width: 100%;
+        .sqlExInputArea {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
             margin-top: 1rem;
-            overflow-x: auto;
+        }
+
+        .sqlExInputArea input[type="submit"]::before {
+            content: "▶";
+            margin-right: 0.5rem;
+            font-size: 0.8em;
+        }
+
+        .sqlExInputArea input[type="button"]::before {
+            content: "↺";
+            margin-right: 0.5rem;
+            font-size: 0.8em;
         }
 
         .results-table {
@@ -179,20 +122,11 @@
             color: #e2e8f0;
         }
 
-        .results-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
         .results-table tbody tr:hover {
             background-color: #2d3748;
             transition: background-color 0.2s ease;
         }
 
-        .results-table tbody tr:hover td {
-            color: #ffffff;
-        }
-
-        /* Estilo para mensagens de erro e sucesso */
         .returnError {
             color: #ef4444;
             padding: 1rem;
@@ -210,207 +144,346 @@
             margin-top: 1rem;
             border-left: 4px solid #10b981;
         }
+        /* Estilos para a navegação do passo a passo */
+        .walkthrough-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
 
-        /* Estilos para os botões Run e Reset */
-        .sqlExInputArea input[type="submit"],
-        .sqlExInputArea input[type="button"] {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.8rem 2rem;
-            font-size: 0.95rem;
-            font-weight: 600;
+        .walkthrough-navigation button {
+            padding: 0.75rem 1.5rem;
+            background-color: #04abe3;
+            color: white;
             border-radius: 0.5rem;
             border: none;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-right: 1rem;
+            transition: background-color 0.3s ease;
         }
 
-        /* Estilo específico para o botão Run */
-        .sqlExInputArea input[type="submit"] {
+        .walkthrough-navigation button:hover {
+            background-color: #038ac1;
+        }
+
+        .walkthrough-navigation button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+
+        /* Estilo para o cronômetro */
+        #timer {
+            position: fixed;
+            right: 20px;
+            background-color: #3c4245;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: none; /* Iniciar oculto */
+            z-index: 1000;
+        }
+
+        /* Estilos para o modal de confirmação */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1001; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #3c4245;
+            margin: auto;
+            padding: 40px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h2 {
+            color: #04abe3;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .modal-content p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #e2e8f0;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .modal-buttons button.confirm {
             background-color: #04abe3;
             color: white;
-            box-shadow: 0 4px 6px rgba(4, 171, 227, 0.2);
         }
 
-        .sqlExInputArea input[type="submit"]:hover {
-            background-color: #038ac1;
+        .modal-buttons button.confirm:hover {
+            background-color: #038ac1; 
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(4, 171, 227, 0.3);
         }
 
-        .sqlExInputArea input[type="submit"]:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(4, 171, 227, 0.2);
+        .modal-buttons button.cancel {
+            background-color: #555;
+            color: white;
         }
 
-        /* Estilo específico para o botão Reset */
-        .sqlExInputArea input[type="button"] {
-            background-color: #2d3748;
-            color: #e2e8f0;
-            box-shadow: 0 4px 6px rgba(45, 55, 72, 0.2);
-        }
-
-        .sqlExInputArea input[type="button"]:hover {
-            background-color: #1a202c;
+        .modal-buttons button.cancel:hover {
+            background-color: #777;
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(45, 55, 72, 0.3);
         }
 
-        .sqlExInputArea input[type="button"]:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(45, 55, 72, 0.2);
-        }
-
-        /* Container dos botões */
-        .sqlExInputArea {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        /* Ícones para os botões */
-        .sqlExInputArea input[type="submit"]::before {
-            content: "▶";
-            margin-right: 0.5rem;
-            font-size: 0.8em;
-        }
-
-        .sqlExInputArea input[type="button"]::before {
-            content: "↺";
-            margin-right: 0.5rem;
-            font-size: 0.8em;
-        }
     </style>
-    
-    <meta name="keywords" content="SQL, banco de dados, jogo, mistério, assassinato">
-    <meta name="description" content="Use consultas SQL para resolver um misterioso assassinato. Adequado para iniciantes ou detetives de SQL experientes.">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css" />
-    <script src="https://unpkg.com/@webcomponents/custom-elements@1.2.0/custom-elements.min.js"></script>
-    <script src="scripts/codemirror.js"></script>
-    <script src="scripts/codemirrorsql.js"></script>
-    <script src="scripts/autorefresh.js"></script>
-    <script src="scripts/main.js"></script>
-    <script>
-        window.onload = () => loadData('sql-murder-mystery.db');
-    </script>
 </head>
 
 <body class="bg-dark-bg text-white font-sans text-lg">
-
     <header class="bg-white shadow-md sticky top-0 z-50">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <a href="http://knightlab.com" class="flex items-center">
+            <a href="https://medium.com/ieeecisunb" target="_blank" class="flex items-center">
                 <img src="img/cis-logo.png" alt="Logo" class="h-10">
             </a>
             <h1 class="text-2xl font-bold text-gray-800 hidden md:block">
                 O Mistério de Assassinato em SQL
             </h1>
             <div class="flex items-center space-x-4">
-                 <a href="https://github.com/NUKnightLab/sql-mysteries" target="_blank" class="text-gray-600 hover:text-brand-blue transition-colors">
-                    <i class="fab fa-github fa-2x"></i>
-                 </a>
+                <a href="https://www.unb.br/" target="_blank" class="text-gray-600 hover:text-brand-blue transition-colors">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/S%C3%ADmbolo_da_UnB_%28para_fundo_branco%29.png" class="h-10" alt="" srcset="">
+                </a>
             </div>
+            <div id="timer">50:00</div>
         </nav>
     </header>
 
     <main class="container mx-auto p-4 md:p-8">
-        
-        <div class="text-center pt-8 pb-12">
-            <h1 class="text-5xl md:text-6xl font-bold">Mistério de Assassinato em SQL</h1>
-            <h2 class="text-2xl text-gray-300 mt-3">Você consegue descobrir quem foi o culpado?</h2>
+        <!-- Seção do Passo a Passo (inicialmente visível) -->
+        <div id="walkthrough-container" class="space-y-8">
+            <div class="text-center pt-8 pb-12">
+                <h1 class="text-5xl md:text-6xl font-bold">Bem-Vindo ao Murder Mystery SQL IEEE CIS UnB!</h1>
+                <h2 class="text-2xl text-gray-300 mt-3">Prepare-se para desvendar um mistério...</h2>
+            </div>
+
+            <!-- O conteúdo de walkthrough_new.html será carregado aqui -->
+            <div id="walkthrough-content"></div>
+
+            <div class="walkthrough-navigation">
+                <button id="prev-step" class="px-6 py-3 bg-brand-blue rounded-lg text-white font-semibold">Anterior</button>
+                <button id="next-step" class="px-6 py-3 bg-brand-blue rounded-lg text-white font-semibold">Próximo</button>
+                <button id="start-challenge" class="px-6 py-3 bg-green-600 rounded-lg text-white font-semibold" style="display: none;">Começar Desafio</button>
+            </div>
         </div>
 
-        <div class="space-y-8">
-            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
-                <div class="md:flex md:space-x-8 items-center">
-                    <img src="174092-clue-illustration.png" class="w-full md:w-1/3 rounded-lg mb-4 md:mb-0" alt="Ilustração decorativa de um detetive olhando para um quadro de evidências.">
-                    <p class="text-xl leading-relaxed">
-                        Houve um assassinato na Cidade SQL! O "Mistério de Assassinato em SQL" foi projetado para ser tanto uma lição autodirigida para aprender conceitos e comandos de SQL quanto um jogo divertido para usuários experientes de SQL resolverem um crime intrigante.
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
-                <h2 class="text-3xl font-bold mb-4 text-brand-blue">Novo em SQL?</h2>
-                <p class="mb-3 leading-relaxed">
-                    Este exercício serve mais como uma forma de praticar habilidades em SQL do que um tutorial completo. Se você nunca usou SQL, <a href="walkthrough.html" class="text-brand-blue font-semibold hover:underline">experimente o passo a passo</a>. Se você realmente quer aprender muito sobre SQL, pode preferir um tutorial completo como o <a href="https://selectstarsql.com/" target="_blank" rel="noopener noreferrer" class="text-brand-blue font-semibold hover:underline">Select Star SQL</a>.
-                </p>
-                <p class="leading-relaxed">Se você já está confortável com SQL, pode <a href="#detetives" class="text-brand-blue font-semibold hover:underline">começar abaixo</a>!</p>
-            </div>
-
-            <div id="detetives" class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
-                <h2 class="text-3xl font-bold mb-4 text-brand-blue">Detetives de SQL experientes começam aqui</h2>
-                <p class="mb-4 leading-relaxed">
-                    Um crime ocorreu e o detetive precisa da sua ajuda. O detetive lhe deu o relatório da cena do crime, mas você o perdeu. Você lembra vagamente que o crime foi um <strong>assassinato</strong> que ocorreu por volta de <strong>15 de janeiro de 2018</strong> e que aconteceu na <strong>Cidade SQL</strong>. Comece recuperando o relatório da cena do crime correspondente do banco de dados do departamento de polícia.
-                </p>
-
-                <h3 class="text-2xl font-semibold mb-3">Explorando a Estrutura do Banco de Dados</h3>
-                <p class="mb-4 leading-relaxed">
-                    Usuários experientes de SQL podem usar consultas para inferir a estrutura de um banco de dados. O Mistério de Assassinato em SQL é construído usando SQLite. Use este comando para encontrar as tabelas no banco de dados.
-                </p>
-                <sql-exercise data-question="Execute esta consulta para encontrar os nomes das tabelas neste banco de dados." data-comment="Este comando é específico do SQLite." data-default-text="SELECT name 
- FROM sqlite_master 
- WHERE type = 'table'"></sql-exercise>
-
-                <p class="mt-8 mb-4 leading-relaxed">
-                    Além de saber os nomes das tabelas, você precisa saber como cada uma está estruturada. Veja como fazer isso com o SQLite.
-                </p>
-                <sql-exercise data-question="Execute esta consulta para encontrar a estrutura da tabela `crime_scene_report`" data-comment="Altere o valor de 'name' para ver a estrutura de outras tabelas." data-default-text="SELECT sql 
- FROM sqlite_master 
- WHERE name = 'crime_scene_report'"></sql-exercise>
-            </div>
-
-            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
-                <h3 class="text-3xl font-bold mb-4 text-brand-blue">O resto é com você!</h3>
-                <p class="mb-3 leading-relaxed">Se você está realmente confortável com SQL, provavelmente consegue resolver a partir daqui.</p>
-                <p class="mb-4 leading-relaxed">
-                    Mas <a id="show-schema" href="#" class="text-brand-blue font-semibold hover:underline">clique aqui</a> para mostrar o diagrama do esquema (schema).
-                    <img id="experienced-schema" src="schema.png" alt="Diagrama do banco de dados">
-                </p>
-                <p class="mb-4 leading-relaxed">E você sempre pode ir para o <a href="walkthrough.html" class="text-brand-blue font-semibold hover:underline">passo a passo</a>.</p>
-                
-                <sql-exercise data-question="Use seu conhecimento do esquema do banco de dados e comandos SQL para descobrir quem cometeu o assassinato." data-comment="Quando achar que sabe a resposta, vá para a próxima seção." data-default-text="-- Comece sua investigação aqui"></sql-exercise>
-            </div>
-            
-            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
-                <h3 class="text-3xl font-bold mb-4 text-brand-blue">Verifique sua solução</h3>
-                <sql-exercise data-question="Você encontrou o assassino?" data-comment="" data-default-text="INSERT INTO solution VALUES (1, 'Insira o nome da pessoa que você encontrou aqui');
-        
-SELECT value FROM solution;"></sql-exercise>
-            </div>
-
-            <div class="bg-card-bg p-6 md:p-8 rounded-2xl shadow-lg">
-                <h3 class="text-3xl font-bold mb-4 text-brand-blue">Créditos</h3>
-                <div class="space-y-3 text-gray-300 leading-relaxed">
-                    <p>O Mistério de Assassinato em SQL foi criado por <a href="https://twitter.com/joonparkmusic" class="text-brand-blue hover:underline">Joon Park</a> e <a href="https://twitter.com/Cathy_MeiyingHe" class="text-brand-blue hover:underline">Cathy He</a> enquanto eram bolsistas do Knight Lab. Veja o <a href="https://github.com/NUKnightLab/sql-mysteries" class="text-brand-blue hover:underline">repositório no GitHub</a> para mais informações.</p>
-                    <p>Adaptado e produzido para a web por <a href="https://twitter.com/joegermuska" class="text-brand-blue hover:underline">Joe Germuska</a>.</p>
-                    <p>Web-based SQL é possível graças ao <a href="https://github.com/sql-js/sql.js/" class="text-brand-blue hover:underline">SQL.js</a>.</p>
-                </div>
-            </div>
-
+        <!-- Seção do Desafio (inicialmente oculta) -->
+        <div id="challenge-container" style="display: none;">
+            <!-- O conteúdo de challenge_content.html será carregado aqui -->
         </div>
     </main>
 
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <h2>Atenção!</h2>
+            <p>Ao iniciar o desafio, você não poderá mais voltar para o passo a passo e o cronômetro começará a contagem regressiva de 50 minutos. Tem certeza que deseja começar?</p>
+            <div class="modal-buttons">
+                <button class="cancel">Cancelar</button>
+                <button class="confirm">Começar Agora</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="bg-gray-900 mt-12 py-8">
         <div class="container mx-auto text-center text-gray-400">
-            <p>&copy; 2025 Northwestern University. Todos os Direitos Reservados.</p>
+            <p>&copy; 2025 IEEE Computational Intelligence Society - UnB. Todos os Direitos Reservados.</p>
             <p class="mt-1">Adaptado e reestilizado com base no projeto original do <a href="http://knightlab.northwestern.edu" target="_blank" class="text-brand-blue hover:underline">Knight Lab</a>.</p>
         </div>
     </footer>
 
-    <script type="text/javascript">
-        // Script para mostrar o diagrama do schema
-        document.querySelector('#show-schema').addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelector('#experienced-schema').classList.toggle('show');
-        })
-    </script>
+    <script>
+        const walkthroughContainer = document.getElementById('walkthrough-container');
+        const challengeContainer = document.getElementById('challenge-container');
+        const walkthroughContent = document.getElementById('walkthrough-content');
+        const prevStepBtn = document.getElementById('prev-step');
+        const nextStepBtn = document.getElementById('next-step');
+        const startChallengeBtn = document.getElementById('start-challenge');
+        const timerDisplay = document.getElementById('timer');
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const confirmBtn = confirmationModal.querySelector('.confirm');
+        const cancelBtn = confirmationModal.querySelector('.cancel');
 
+        let currentStep = 0;
+        let totalSteps = 0;
+        let countdown;
+        let timeLeft = 50 * 60; // 50 minutos em segundos
+
+        async function loadWalkthroughContent() {
+            try {
+                const response = await fetch('walkthrough_new.html');
+                const text = await response.text();
+                // Analisa o HTML e extrai apenas o conteúdo dentro do <main>
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const mainContent = doc.querySelector('main .space-y-8'); // Ajustado para pegar o div correto
+                
+                // Encontrar todos os divs filhos diretos de mainContent que representam as etapas
+                const stepDivs = Array.from(mainContent.children).filter(child => child.tagName === 'DIV');
+                totalSteps = stepDivs.length;
+
+                walkthroughContent.innerHTML = ''; // Limpa o conteúdo existente
+
+                stepDivs.forEach((stepDiv, index) => {
+                    stepDiv.id = `step-${index}`;
+                    stepDiv.style.display = 'none'; // Oculta todas as etapas inicialmente
+                    walkthroughContent.appendChild(stepDiv);
+                });
+
+                showStep(currentStep);
+            } catch (error) {
+                console.error('Erro ao carregar o conteúdo do passo a passo:', error);
+            }
+        }
+
+        function showStep(stepIndex) {
+            const steps = document.querySelectorAll('#walkthrough-content > div');
+            steps.forEach((step, index) => {
+                step.style.display = index === stepIndex ? 'block' : 'none';
+            });
+            currentStep = stepIndex;
+            updateNavigationButtons();
+        }
+
+        function updateNavigationButtons() {
+            prevStepBtn.disabled = currentStep === 0;
+            nextStepBtn.disabled = currentStep === totalSteps - 1;
+
+            if (currentStep === totalSteps - 1) {
+                startChallengeBtn.style.display = 'block';
+                nextStepBtn.style.display = 'none';
+            } else {
+                startChallengeBtn.style.display = 'none';
+                nextStepBtn.style.display = 'block';
+            }
+        }
+
+        function startTimer() {
+            timerDisplay.style.display = 'block';
+            countdown = setInterval(() => {
+                timeLeft--;
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    alert('Tempo esgotado! O desafio terminou.');
+                    // Aqui você pode adicionar lógica para finalizar o desafio, enviar resultados, etc.
+                }
+            }, 1000);
+        }
+
+        async function startChallenge() {
+            walkthroughContainer.style.display = 'none';
+            challengeContainer.style.display = 'block';
+            try {
+                const response = await fetch('challenge_content.html');
+                const text = await response.text();
+                // Extrai o conteúdo do body ou de uma div específica se necessário
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                // Copia apenas o conteúdo relevante do body, excluindo scripts e head se não forem necessários
+                const bodyContent = doc.querySelector('body > main').innerHTML; // Ajuste para pegar apenas o conteúdo da main
+                challengeContainer.innerHTML = `
+                    <header class="bg-none top-0 z-0">
+                        <div id="timer-challenge" style="font-size: 1.5rem; font-weight: bold; color: #04abe3;"></div>
+                    </header>
+                    <main class="container mx-auto p-4 md:p-8">
+                        ${bodyContent}
+                    </main>
+                `;
+                // Re-inicializa os scripts necessários após carregar o HTML dinamicamente
+                const script = document.createElement('script');
+                script.src = 'scripts/main.js';
+                script.onload = () => {
+                    // Após main.js carregar, precisamos garantir que o banco de dados seja carregado.
+                    // Se a função loadData for global, ela pode ser chamada aqui.
+                    // Caso contrário, é preciso garantir que o script carregado contenha a inicialização necessária.
+                    if (typeof loadData === 'function') {
+                        loadData('sql-murder-mystery.db');
+                    } else {
+                        // Se loadData não for global, você precisará adicionar um script inline aqui
+                        // ou garantir que main.js o inicialize corretamente em um contexto de elemento dinâmico.
+                        console.warn('loadData function not found globally. Ensure main.js correctly initializes SQL elements.');
+                    }
+                };
+                challengeContainer.appendChild(script);
+
+                startTimer();
+                // Atualizar a exibição do cronômetro para o novo elemento
+                timerDisplay = document.getElementById('timer-challenge');
+                updateTimerDisplay(); // Chama uma função para exibir o tempo inicial
+
+            } catch (error) {
+                console.error('Erro ao carregar o conteúdo do desafio:', error);
+            }
+        }
+
+        // Função para atualizar a exibição do cronômetro
+        function updateTimerDisplay() {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        prevStepBtn.addEventListener('click', () => {
+            if (currentStep > 0) {
+                showStep(currentStep - 1);
+            }
+        });
+
+        nextStepBtn.addEventListener('click', () => {
+            if (currentStep < totalSteps - 1) {
+                showStep(currentStep + 1);
+            }
+        });
+
+        startChallengeBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'flex';
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none';
+            startChallenge();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none';
+        });
+
+        // Carrega o conteúdo do passo a passo quando a página é carregada
+        document.addEventListener('DOMContentLoaded', loadWalkthroughContent);
+    </script>
 </body>
-</html>
+</html> 
