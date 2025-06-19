@@ -258,6 +258,42 @@
             background-color: #777;
             transform: translateY(-2px);
         }
+        /* VERSÃO ALTERNATIVA (se não puder alterar o JS) */
+/* Adicione ao final da sua tag <style> */
+
+@media (max-width: 768px) {
+    .sqlExInputArea {
+        /* Mudar a direção do flex para coluna e os elementos para o início */
+        flex-direction: column;
+        align-items: flex-start; 
+    }
+
+    /* Fazer o editor CodeMirror ocupar toda a largura */
+    .CodeMirror {
+        width: 100%;
+        min-width: unset; /* Remove o min-width problemático */
+    }
+    
+    /* Fazer os botões ocuparem toda a largura e centralizar o conteúdo */
+    .sqlExInputArea input[type="submit"],
+    .sqlExInputArea input[type="button"] {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 0.5rem; /* Adiciona um pequeno espaço abaixo de cada botão */
+        justify-content: center;
+    }
+
+    /* Remove o espaço extra do último botão */
+    .sqlExInputArea input[type="button"]:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Ajuste para a tabela de resultados em telas pequenas */
+    .results-table {
+        overflow-x: auto; /* Permite rolar a tabela horizontalmente se for muito larga */
+        display: block;
+    }
+}
 
     </style>
 </head>
@@ -339,32 +375,42 @@
         let countdown;
         let timeLeft = 50 * 60; // 50 minutos em segundos
 
-        async function loadWalkthroughContent() {
-            try {
-                const response = await fetch('walkthrough_new.html');
-                const text = await response.text();
-                // Analisa o HTML e extrai apenas o conteúdo dentro do <main>
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const mainContent = doc.querySelector('main .space-y-8'); // Ajustado para pegar o div correto
-                
-                // Encontrar todos os divs filhos diretos de mainContent que representam as etapas
-                const stepDivs = Array.from(mainContent.children).filter(child => child.tagName === 'DIV');
-                totalSteps = stepDivs.length;
+async function loadWalkthroughContent() {
+    try {
+        const response = await fetch('walkthrough_new.html');
+        const text = await response.text();
+        // Analisa o HTML e extrai apenas o conteúdo dentro do <main>
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const mainContent = doc.querySelector('main .space-y-8'); // Ajustado para pegar o div correto
+        
+        // Encontrar todos os divs filhos diretos de mainContent que representam as etapas
+        const stepDivs = Array.from(mainContent.children).filter(child => child.tagName === 'DIV');
+        totalSteps = stepDivs.length;
 
-                walkthroughContent.innerHTML = ''; // Limpa o conteúdo existente
+        walkthroughContent.innerHTML = ''; // Limpa o conteúdo existente
 
-                stepDivs.forEach((stepDiv, index) => {
-                    stepDiv.id = `step-${index}`;
-                    stepDiv.style.display = 'none'; // Oculta todas as etapas inicialmente
-                    walkthroughContent.appendChild(stepDiv);
-                });
+        stepDivs.forEach((stepDiv, index) => {
+            stepDiv.id = `step-${index}`;
+            stepDiv.style.display = 'none'; // Oculta todas as etapas inicialmente
+            walkthroughContent.appendChild(stepDiv);
+        });
 
-                showStep(currentStep);
-            } catch (error) {
-                console.error('Erro ao carregar o conteúdo do passo a passo:', error);
-            }
-        }
+        showStep(currentStep);
+        
+        // Carrega o banco de dados e inicializa os exercícios SQL
+        await loadData('sql-murder-mystery.db');
+        initializeSqlExercises(); // Inicializa os exercícios SQL para o walkthrough
+        
+    } catch (error) {
+        console.error('Erro ao carregar o conteúdo do passo a passo:', error);
+    }
+}
+
+// Modifique o event listener DOMContentLoaded para:
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadWalkthroughContent();
+});
 
         function showStep(stepIndex) {
             const steps = document.querySelectorAll('#walkthrough-content > div');
@@ -424,21 +470,9 @@
                     </main>
                 `;
                 // Re-inicializa os scripts necessários após carregar o HTML dinamicamente
-                const script = document.createElement('script');
-                script.src = 'scripts/main.js';
-                script.onload = () => {
-                    // Após main.js carregar, precisamos garantir que o banco de dados seja carregado.
-                    // Se a função loadData for global, ela pode ser chamada aqui.
-                    // Caso contrário, é preciso garantir que o script carregado contenha a inicialização necessária.
-                    if (typeof loadData === 'function') {
-                        loadData('sql-murder-mystery.db');
-                    } else {
-                        // Se loadData não for global, você precisará adicionar um script inline aqui
-                        // ou garantir que main.js o inicialize corretamente em um contexto de elemento dinâmico.
-                        console.warn('loadData function not found globally. Ensure main.js correctly initializes SQL elements.');
-                    }
-                };
-                challengeContainer.appendChild(script);
+                                await loadData('sql-murder-mystery.db'); // Carrega o banco de dados após o conteúdo ser inserido
+
+                initializeSqlExercises();
 
                 startTimer();
                 // Atualizar a exibição do cronômetro para o novo elemento
@@ -486,4 +520,4 @@
         document.addEventListener('DOMContentLoaded', loadWalkthroughContent);
     </script>
 </body>
-</html> 
+</html>
